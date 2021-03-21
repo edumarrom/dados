@@ -9,7 +9,6 @@ class Dado:
 
     Al comienzo de vida del dado, el dado se tira,
     de manera que una de sus caras mire hacia arriba.
-
     """
     def __init__(self, caras):
         """Constructor de la clase Dado."""
@@ -105,13 +104,16 @@ class Cubilete:
             dados += f'[{d.valor()}] '
         return dados
 
+    def suma(self):
+        """Devuelve la suma de los valores de los dados."""
+        res = 0
+        for d in self.__get_dados():
+            res += d.valor()
+        return res
+
     def agitar(self):
         """
         Agita el cubilete, haciendo que los valores de los
         dados cambie.
         """
         [d.tirar() for d in self.__get_dados()]
-
-
-c = Cubilete(5)
-print(c.mostrar_dados())
