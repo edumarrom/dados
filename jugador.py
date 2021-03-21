@@ -1,3 +1,4 @@
+from random import choice
 class Jugador:
 
     def __init__(self, nombre, puntos = 3):
@@ -34,7 +35,7 @@ class Jugador:
         jugadores = []
         for i in range(num_jugadores):
             try:
-                nombre_jugador = str(input('¿Nombre del jugador?: '))
+                nombre_jugador = str(input(f'¿Nombre del jugador nº {str(i + 1)}?: '))
             except ValueError:
                 print('Por favor, escribe un nombre válido.')
             jugadores.append(Jugador(nombre_jugador))

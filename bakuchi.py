@@ -49,13 +49,29 @@ class Bakuchi:
             if j.puntos() <= 0:
                 print(f'{j.nombre()} descalificado.')
                 self.__borrar_jugador(j)
-        input('Pulsa Intro para continuar.')
+                input('Pulsa Intro para continuar.')
+
+    def quien_gana(self):
+        ganador = None
+        for j in self.__get_jugadores():
+            if j.puntos() == 10:
+                ganador = j
+                break
+        if ganador == None:
+
+            input('Pulsa Intro para pasar a la siguiente ronda.')
+        else:
+            print(f'{ganador.nombre()} gana la partida, '\
+                f'con {ganador.puntos()} puntos.')
+            self.finalizar()
 
     def comprobar_fin_juego(self):
         if len(self.__get_jugadores()) == 1:
             ganador = self.__get_jugadores()[0]
-            print(f'{ganador.nombre()} gana la partida.')
+            print(f'{ganador.nombre()} gana la partida, '\
+                'por ser el último jugador en pié.')
             self.finalizar()
+        else: self.quien_gana()
 
     def comprobar_apuestas(self):
         resultado = self.cubilete().suma() % 2
@@ -64,11 +80,11 @@ class Bakuchi:
         for k, v in self.__get_apuestas().items():
             if v == resultado:
                 k.agregar_punto()
-                ganadores += k.nombre()
+                ganadores += f'{k.nombre()}, '
             else:
                 k.quitar_punto()
-                perdedores += k.nombre()
-        print(f'{ganadores} ganan la ronda, {perdedores} pierden.')
+                perdedores += f'{k.nombre()}, '
+        print(f'{ganadores}ganan la ronda. {perdedores}pierden.')
 
     def apostar(self, jugador):
         """
@@ -83,11 +99,11 @@ class Bakuchi:
         elif decision in ('i', 'o', 'impar', 'odd'):
             self.__apuestas[jugador] = IMPAR
 
-    def finalizar(self):
+    def finalizar():
         """El repartidor pregunta al jugador si quiere volver a jugar."""
         print('¡Hasta luego!.')
         input('Pulsa Intro para finalizar.')
         exit()
 
 if __name__ == '__main__':
-    b = Bakuchi()
+    b = Bakuchi(2)
