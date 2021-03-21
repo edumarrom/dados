@@ -41,7 +41,7 @@ class Dado:
         Asigna un valor al dado.
         El valor nunca podrá superar el nº de caras.
         """
-        if valor in range(1, self.caras()):
+        if valor in range(1, self.caras() + 1):
             self.__valor = valor
         else: raise ValueError('El valor no puede superar el nº de caras.')
 
@@ -111,3 +111,7 @@ class Cubilete:
         dados cambie.
         """
         [d.tirar() for d in self.__get_dados()]
+
+
+c = Cubilete(5)
+print(c.mostrar_dados())
