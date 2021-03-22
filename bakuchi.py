@@ -11,6 +11,7 @@ class Bakuchi:
     def __init__(self, num_jugadores = 2):
         self.__jugadores = Jugador.asignar_jugadores(num_jugadores)
         self.__apuestas = {}
+        self.__botin = 0
         self.__cubilete = Cubilete(2)
         self.ronda()
 
@@ -25,6 +26,9 @@ class Bakuchi:
 
     def __limpiar_apuestas(self):
         self.__apuestas = {}
+
+    def botin(self):
+        return self.__botin
 
     def cubilete(self):
         return self.__cubilete
@@ -46,23 +50,22 @@ class Bakuchi:
 
     def comprobar_fin_jugadores(self):
         for j in self.__get_jugadores():
-            if j.puntos() <= 0:
-                print(f'{j.nombre()} descalificado.')
+            if j.saldo() <= 0:
+                print(f'{j.nombre()} se quedó sin fondos.')
                 self.__borrar_jugador(j)
                 input('Pulsa Intro para continuar.')
 
     def quien_gana(self):
         ganador = None
         for j in self.__get_jugadores():
-            if j.puntos() == 10:
+            if j.saldo() == (75 * (1000 * len(self.__get_jugadores()))) / 100:
                 ganador = j
                 break
         if ganador == None:
-
             input('Pulsa Intro para pasar a la siguiente ronda.')
         else:
             print(f'{ganador.nombre()} gana la partida, '\
-                f'con {ganador.puntos()} puntos.')
+                f'con {ganador.puntos()} puntos, el 75% del total.')
             self.finalizar()
 
     def comprobar_fin_juego(self):
@@ -75,20 +78,34 @@ class Bakuchi:
 
     def comprobar_apuestas(self):
         resultado = self.cubilete().suma() % 2
-        ganadores = ''
-        perdedores = ''
+        ganadores = []
+        perdedores = []
         for k, v in self.__get_apuestas().items():
             if v == resultado:
-                k.agregar_punto()
-                ganadores += f'{k.nombre()}, '
+                ganadores.append(k)
             else:
-                k.quitar_punto()
-                perdedores += f'{k.nombre()}, '
-        print(f'{ganadores}ganan la ronda. {perdedores}pierden.')
+                perdedores.append(k)
+        g = ''
+        p = ''
 
-    def apostar(self, jugador):
+        for j in self.__get_jugadores():
+            if j in ganadores:
+                j.agregar_saldo(self.botin() / len(ganadores))
+                if j == ganadores[-1]:
+                    g += f'y {j.nombre()}'
+                else:
+                    g += f'{j.nombre()}, '
+            else:
+                if j == perdedores[-1]:
+                    p += f'y {j.nombre()}'
+                else:
+                    p += f'{j.nombre()}, '
+        print(f'{g} ganan la ronda. {p} pierden.')
+
+    def apostar(self, jugador: Jugador):
         """
         pregunta al jugador si va a apostar por par o impar.
+        A continuación pregunta cuanto quiere apostar.
         """
         try:
             decision = str(input('¿Apuestas par o impar (P/I)?: '))
@@ -98,12 +115,21 @@ class Bakuchi:
             self.__apuestas[jugador] = PAR
         elif decision in ('i', 'o', 'impar', 'odd'):
             self.__apuestas[jugador] = IMPAR
+        try:
+            apuesta = int(input('¿Cuánto quieres apostar?: '))
+        except ValueError:
+                print('Por favor, escribe una cantidad válida.')
+        jugador.retirar_saldo(apuesta)
+        self.__botin += apuesta
 
-    def finalizar():
+
+    def finalizar(self):
         """El repartidor pregunta al jugador si quiere volver a jugar."""
         print('¡Hasta luego!.')
         input('Pulsa Intro para finalizar.')
         exit()
 
 if __name__ == '__main__':
-    b = Bakuchi(2)
+    print('Bienvenido a esta nueva partida de Cho-Han Bakuchi.')
+    num_jugadores = int(input('¿Cuántos vamos a jugar?: '))
+    b = Bakuchi(num_jugadores)
