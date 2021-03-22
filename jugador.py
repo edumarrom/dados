@@ -1,7 +1,7 @@
 from random import choice
 class Jugador:
 
-    def __init__(self, nombre, saldo = 1000):
+    def __init__(self, nombre, saldo = 1000.0):
         self.__set_nombre(nombre)
         self.__set_saldo(saldo)
 

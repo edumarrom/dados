@@ -93,6 +93,10 @@ class Cubilete:
         """
         return self.__dados
 
+    def num_dados(self):
+        """Devuelve el nº de dados que hay en el cubilete."""
+        return len(self.__get_dados())
+
     def mostrar_dados(self):
         """
         Devuelve un literal, mostrando el valor de los dados \

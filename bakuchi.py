@@ -12,7 +12,7 @@ class Bakuchi:
         self.__jugadores = Jugador.asignar_jugadores(num_jugadores)
         self.__apuestas = {}
         self.__botin = 0
-        self.__cubilete = Cubilete(2)
+        self.__cubilete = Cubilete(5)
         self.ronda()
 
     def __get_jugadores(self):
@@ -37,7 +37,10 @@ class Bakuchi:
         while self.__get_jugadores() != []:
             self.__limpiar_apuestas()
             self.cubilete().agitar()
-            print('¿[x] [x]?')
+            dados = ''
+            for i in range(self.cubilete().num_dados()):
+                dados += ' [?] '
+            print(dados)
             for j in self.__get_jugadores():
                 print(f'| Turno de {j}')
                 self.apostar(j)
@@ -47,60 +50,6 @@ class Bakuchi:
             self.comprobar_fin_jugadores()
             self.comprobar_fin_juego()
         self.finalizar()
-
-    def comprobar_fin_jugadores(self):
-        for j in self.__get_jugadores():
-            if j.saldo() <= 0:
-                print(f'{j.nombre()} se quedó sin fondos.')
-                self.__borrar_jugador(j)
-                input('Pulsa Intro para continuar.')
-
-    def quien_gana(self):
-        ganador = None
-        for j in self.__get_jugadores():
-            if j.saldo() == (75 * (1000 * len(self.__get_jugadores()))) / 100:
-                ganador = j
-                break
-        if ganador == None:
-            input('Pulsa Intro para pasar a la siguiente ronda.')
-        else:
-            print(f'{ganador.nombre()} gana la partida, '\
-                f'con {ganador.puntos()} puntos, el 75% del total.')
-            self.finalizar()
-
-    def comprobar_fin_juego(self):
-        if len(self.__get_jugadores()) == 1:
-            ganador = self.__get_jugadores()[0]
-            print(f'{ganador.nombre()} gana la partida, '\
-                'por ser el último jugador en pié.')
-            self.finalizar()
-        else: self.quien_gana()
-
-    def comprobar_apuestas(self):
-        resultado = self.cubilete().suma() % 2
-        ganadores = []
-        perdedores = []
-        for k, v in self.__get_apuestas().items():
-            if v == resultado:
-                ganadores.append(k)
-            else:
-                perdedores.append(k)
-        g = ''
-        p = ''
-
-        for j in self.__get_jugadores():
-            if j in ganadores:
-                j.agregar_saldo(self.botin() / len(ganadores))
-                if j == ganadores[-1]:
-                    g += f'y {j.nombre()}'
-                else:
-                    g += f'{j.nombre()}, '
-            else:
-                if j == perdedores[-1]:
-                    p += f'y {j.nombre()}'
-                else:
-                    p += f'{j.nombre()}, '
-        print(f'{g} ganan la ronda. {p} pierden.')
 
     def apostar(self, jugador: Jugador):
         """
@@ -122,6 +71,47 @@ class Bakuchi:
         jugador.retirar_saldo(apuesta)
         self.__botin += apuesta
 
+    def comprobar_apuestas(self):
+        resultado = self.cubilete().suma() % 2
+        aux = 'Pares' if resultado == PAR else 'Impares'
+        ganadores = []
+        for k, v in self.__get_apuestas().items():
+            if v == resultado:
+                ganadores.append(k)
+        print(f'{aux} ganan la ronda, con {self.botin()} a repartir entre {len(ganadores)} jugadores')
+        for j in self.__get_jugadores():
+            if j in ganadores:
+                j.agregar_saldo(self.botin() / len(ganadores))
+                self.__botin -= self.botin() / len(ganadores)
+            print(j)
+
+    def comprobar_fin_jugadores(self):
+        for j in self.__get_jugadores():
+            if j.saldo() <= 0:
+                print(f'{j.nombre()} se quedó sin fondos.')
+                self.__borrar_jugador(j)
+                input('Pulsa Intro para continuar.')
+
+    def comprobar_fin_juego(self):
+        if len(self.__get_jugadores()) == 1:
+            ganador = self.__get_jugadores()[0]
+            print(f'{ganador.nombre()} gana la partida, '\
+                'por ser el último jugador en pié.')
+            self.finalizar()
+        else: self.quien_gana()
+
+    def quien_gana(self):
+        ganador = None
+        for j in self.__get_jugadores():
+            if j.saldo() == (75 * (1000 * len(self.__get_jugadores()))) / 100:
+                ganador = j
+                break
+        if ganador == None:
+            input('Pulsa Intro para pasar a la siguiente ronda.')
+        else:
+            print(f'{ganador.nombre()} gana la partida, '\
+                f'con {ganador.puntos()} puntos, el 75% del total.')
+            self.finalizar()
 
     def finalizar(self):
         """El repartidor pregunta al jugador si quiere volver a jugar."""
